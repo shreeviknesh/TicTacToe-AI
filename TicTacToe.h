@@ -2,29 +2,47 @@
 #include <iostream>
 #include <algorithm>
 #include <tuple>
+#include <time.h>
 const int INF = 10000;
 
+// All possible states of each tile of the board of the game
 enum State {
 	EMPTY,
 	PLAYER_ONE,
 	PLAYER_TWO
 };
 
+// A class that holds (row, col) values
 class Move {
 public:
 	int row, col;
+	// Default constructor
 	Move() : row(-1), col(-1) {};
+	// Parameterized constructor
 	Move(int r, int c) : row(r), col(c) {};
+	// Copy constructor
 	Move(Move& move) : row(move.row), col(move.col) {};
-	void get_input() {
-		std::cout << "Enter the row (1..3) & col (1..3) for your move: ";
-		std::cin >> row >> col;
+	// A function to get the move input from the user
+	void get_input(int** board) {
+		while (true) {
+			std::cout << "Enter the row [1-3] & col [1-3] for your move: ";
+			std::cin >> row >> col;
+
+			if (row < 1 || row > 3 || col < 1 || col > 3 || board[row - 1][col - 1] != State::EMPTY) {
+				std::cout << "Enter a valid move - Indices must be in range 1-3 & the spot must be empty" << std::endl;
+			}
+			else {
+				return;
+			}
+		}
 	}
 };
 
+// A class that implements TicTacToe game and its minimax AI
 class TicTacToe {
 private:
 	int** board;
+	std::string player1, player2;
 
 public:
 	TicTacToe() {
@@ -39,8 +57,11 @@ public:
 				board[i][j] = State::EMPTY;
 			}
 		}
-	}
 
+		player1 = "Player-1";
+		player2 = "Player-2";
+	}
+	// A helper function to check if the row/col/diag is same
 	int check_if_same(int x, int y, int dx, int dy) {
 		int first_field = board[x][y];
 
@@ -62,7 +83,6 @@ public:
 		// winner
 		return first_field;
 	}
-
 	// A function to check if any player has won, or game is tied
 	int evaluate() {
 		int result = 0;
@@ -107,7 +127,6 @@ public:
 		// either tied (result = -1) or not terminal state (result = 0)
 		return result;
 	}
-
 	// A function to visualize the board as a 3x3 matrix with values.
 	void visualize_board() {
 		//std::cout << "Visualizing" << std::endl;
@@ -129,9 +148,11 @@ public:
 			std::cout << std::endl;
 		}
 	}
-
 	// A function that gets the minimax value of all moves
-	int minimax(int depth, bool toMaximize, int player, int opponent) {
+	int minimax(int depth, bool toMaximize) {
+		int player = State::PLAYER_TWO;
+		int opponent = State::PLAYER_ONE;
+
 		int score = evaluate();
 
 		// If player-1 has won
@@ -155,7 +176,7 @@ public:
 				for (int j = 0; j < 3; j++) {
 					if (board[i][j] == State::EMPTY) {
 						board[i][j] = player;
-						best = std::max(best, minimax(depth + 1, !toMaximize, player, opponent));
+						best = std::max(best, minimax(depth + 1, !toMaximize));
 						board[i][j] = State::EMPTY;
 					}
 				}
@@ -168,7 +189,7 @@ public:
 				for (int j = 0; j < 3; j++) {
 					if (board[i][j] == State::EMPTY) {
 						board[i][j] = opponent;
-						best = std::max(best, minimax(depth + 1, !toMaximize, player, opponent));
+						best = std::max(best, minimax(depth + 1, !toMaximize));
 						board[i][j] = State::EMPTY;
 					}
 				}
@@ -176,10 +197,11 @@ public:
 			return best;
 		}
 	}
-
+	// A function tot find the best possible move for the computer
 	Move find_best_move() {
 		int player = State::PLAYER_TWO;
 		int opponent = State::PLAYER_ONE;
+
 		int best_val = -INF, move_val;
 		Move best_move;
 
@@ -187,7 +209,7 @@ public:
 			for (int j = 0; j < 3; j++) {
 				if (board[i][j] == State::EMPTY) {
 					board[i][j] = player;
-					move_val = minimax(0, false, player, opponent);
+					move_val = minimax(0, false);
 					board[i][j] = State::EMPTY;
 
 					if (move_val > best_val) {
@@ -197,9 +219,10 @@ public:
 				}
 			}
 		}
+
 		return best_move;
 	}
-
+	// A function to change the current turn to the other player
 	void change_chance(int &current_chance) {
 		if (current_chance == State::PLAYER_ONE) {
 			current_chance = State::PLAYER_TWO;
@@ -208,8 +231,7 @@ public:
 			current_chance = State::PLAYER_ONE;
 		}
 	}
-
-	// Get computer or player choice input
+	// A function to get computer or player choice input
 	bool get_if_computer() {
 		char player_choice;
 		std::cout << "Do you want to play against computer [y/n]? ";
@@ -226,8 +248,7 @@ public:
 			}
 		}
 	}
-
-	// Get player name(s)
+	// A function to get player name(s)
 	std::pair<std::string, std::string> get_player_names(bool is_computer) {
 		std::string a, b;
 		std::cout << "Enter first player\'s name: ";
@@ -243,68 +264,62 @@ public:
 
 		return make_pair(a, b);
 	}
+	// A function to check if the game has ended
+	bool check_game_end() {
+		int result = evaluate();
+		if (result == -1) {
+			visualize_board();
+			std::cout << "Game tied!" << std::endl;
+		}
+		else if (result == 1) {
+			visualize_board();
+			std::cout << player1 << " wins!" << std::endl;
+		}
+		else if (result == 2) {
+			visualize_board();
+			std::cout << player2 << " wins!" << std::endl;
+		}
+		else {
+			return false;
+		}
 
+		return true;
+	}
 	// The main loop of the application.
 	void play() {
+		// Setting random seed
+		srand(time(0));
+
 		int result = 0;
-		int current_chance;
-		std::string player1, player2;
-		Move move, temp;
+		Move move;
 
 		bool is_computer = get_if_computer();
 		std::tie(player1, player2) = get_player_names(is_computer);
 
-		int random_choice = rand() % 2 + 1;
-		if (random_choice == 1) {
-			current_chance = State::PLAYER_ONE;
-			std::cout << "By random chance, " << player1 << " is starting." << std::endl;
-		} 
-		else {
-			current_chance = State::PLAYER_TWO;
-			std::cout << "By random chance, " << player2 << " is starting." << std::endl;
-		}
+		int current_chance = rand() % 2 + 1;
+		std::cout << "By random chance, " << ((current_chance == 1)? player1 : player2) << " is starting." << std::endl;
 
 		while (result == 0) {
 			visualize_board();
-			if (current_chance == State::PLAYER_ONE) {
-				std::cout << player1;
-			}
-			else {
-				std::cout << player2;
-			}
-			std::cout << "\'s turn: ";
+			std::cout << ((current_chance == State::PLAYER_ONE)? player1 : player2) << "\'s turn: ";
 
 			if (current_chance == State::PLAYER_TWO && is_computer) {
-				temp = find_best_move();
-				move = Move(temp.row + 1, temp.col + 1);
+				move = find_best_move();
 				std::cout << "Computer plays " << move.row << " " << move.col << std::endl;
 			}
 			else {
-				move.get_input();
-				if (move.row < 1 || move.row > 3 || move.col < 1 || move.col > 3 || board[move.row - 1][move.col - 1] != State::EMPTY) {
-					std::cout << "Enter a valid move - Indices must be in range 1-3 & the spot must be empty" << std::endl;
-					continue;
-				}
+				move.get_input(board);
 			}
 
 			board[move.row - 1][move.col - 1] = current_chance;
-
-			result = evaluate();
-			if (result == -1) {
-				visualize_board();
-				std::cout << "Game tied!" << std::endl;
-			}
-			else if (result == 1) {
-				visualize_board();
-				std::cout << player1 << " wins!!" << std::endl;
-			}
-			else if (result == 2) {
-				visualize_board();
-				std::cout << player2 << " wins!!" << std::endl;
+			
+			if (check_game_end()) {
+				std::cout << "Game over!" << std::endl;
+				return;
 			}
 			else {
 				change_chance(current_chance);
-			}			
+			}
 		}
 	}
 };
