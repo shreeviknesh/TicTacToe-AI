@@ -215,8 +215,8 @@ public:
 	// A function to get computer or player choice input
 	bool get_if_computer() {
 		char player_choice;
-		std::cout << "Do you want to play against computer [y/n]? ";
 		while (true) {
+			std::cout << "Do you want to play against computer [y/n]? ";
 			std::cin >> player_choice;
 			if (player_choice == 'y' || player_choice == 'Y') {
 				return true;
@@ -225,7 +225,7 @@ public:
 				return false;
 			}
 			else {
-				std::cout << "Invalid choice.";
+				std::cout << "Invalid choice. ";
 			}
 		}
 	}
@@ -300,7 +300,10 @@ public:
 			
 			if (check_game_end()) {
 				std::cout << "Game over!" << std::endl;
-				return;
+				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+				std::cout << "Press any key to exit.";
+				std::cin.get();
+				exit(0);
 			}
 			else {
 				change_chance(current_chance);
