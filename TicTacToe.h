@@ -178,7 +178,7 @@ public:
 		}
 	}
 
-	// A function tot find the best possible move for the computer
+	// A function to find the best possible move for the computer
 	Move find_best_move() {
 		int best_val = -INF;
 		int move_val = -INF;
