@@ -1,10 +1,10 @@
 #include "TicTacToe.h"
 
 TicTacToe::TicTacToe() {
-	// Initializing the "board" (3x3 matrix) of the game
-	// Tile::EMPTY - Unoccupied space
-	// Tile::PLAYER_ONE - Player 1 has played
-	// Tile::PLAYER_TWO - Player 2 has played
+	/* Initializing the "board" (3x3 matrix) of the game
+	Tile::EMPTY - Unoccupied space
+	Tile::PLAYER_ONE - Player 1 has played
+	Tile::PLAYER_TWO - Player 2 has played */
 	board = new int* [3];
 	for (int i = 0; i < 3; i++) {
 		board[i] = new int[3];
@@ -20,7 +20,6 @@ TicTacToe::TicTacToe() {
 }
 
 void TicTacToe::visualize_board() {
-	//std::cout << "Visualizing" << std::endl;
 	for (int i = 0; i < 3; i++) {
 		std::cout << '|';
 		for (int j = 0; j < 3; j++) {
@@ -152,7 +151,7 @@ Move TicTacToe::find_best_move() {
 	return best_move;
 }
 
-void TicTacToe::change_chance(int &current_chance) {
+void TicTacToe::change_chance(int& current_chance) {
 	if (current_chance == State::PLAYER_ONE) {
 		current_chance = State::PLAYER_TWO;
 	}

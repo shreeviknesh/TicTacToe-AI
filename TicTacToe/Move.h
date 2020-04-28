@@ -1,26 +1,30 @@
 #pragma once
 
-// All possible states of each tile of the board of the game
+/* All possible states of each tile of the board of the game */
 enum State {
 	EMPTY,
 	PLAYER_ONE,
 	PLAYER_TWO
 };
 
-// A class that holds (row, col) values
+/* A class that holds (row, col) values */
 class Move {
 public:
 	int row, col;
-	// Default constructor
+	
+	/* Default constructor */
 	Move() : row(-1), col(-1) {
 	};
-	// Parameterized constructor
+	
+	/* Parameterized constructor */
 	Move(int r, int c) : row(r), col(c) {
 	};
-	// Copy constructor
+	
+	/* Copy constructor */
 	Move(Move& move) : row(move.row), col(move.col) {
 	};
-	// A function to get the move input from the user
+
+	/* A function to get the move input from the user */
 	void get_input(int** board) {
 		while (true) {
 			std::cout << "Enter the row [1-3] & col [1-3] for your move: ";
